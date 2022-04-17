@@ -10,7 +10,6 @@ import asyncio
 async def setup_mongo(app: FastAPI):
     mongo_client = motor.motor_asyncio.AsyncIOMotorClient()
     app.state.mongo_client = mongo_client
-    app.state.mongo_client.get_io_loop = asyncio.get_running_loop
 
 
 def main() -> Union[ASGIApplication, FastAPI]:
@@ -19,6 +18,10 @@ def main() -> Union[ASGIApplication, FastAPI]:
     @app.on_event("startup")
     async def app_startup():
         await setup_mongo(app)
+
+    @app.on_event("shutdown")
+    async def app_startup():
+        print(123)
 
     async def get_user_item(request: Request, device_id: int) -> dict:
         db = request.app.state.mongo_client['test']
